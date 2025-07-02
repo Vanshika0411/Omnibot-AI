@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Chatbot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: url('/static/bg2.jpg') no-repeat center center/cover;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+    }
+
+    header {
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(5px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    /* ✅ Gradient Text with Shadow for Visibility */
+    .gradient-text {
+      font-size: 3.5rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #00BFFF, #7B61FF, #FF00A8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+    }
+
+    .chat-container {
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      width: 90%;
+      max-width: 800px;
+      height: 60vh;
+      border-radius: 15px;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .message {
+      margin: 10px 0;
+      padding: 12px 16px;
+      border-radius: 20px;
+      max-width: 75%;
+      line-height: 1.4;
+      font-size: 1rem;
+      position: relative;
+    }
+
+    .user-message {
+      background-color: #cfe9ff;
+      color: #333;
+      align-self: flex-end;
+      margin-left: auto;
+      border-bottom-right-radius: 0;
+    }
+
+    .bot-message {
+      background-color: #f1f0f0;
+      color: #222;
+      align-self: flex-start;
+      margin-right: auto;
+      border-bottom-left-radius: 0;
+    }
+
+    .input-container {
+      display: flex;
+      width: 90%;
+      max-width: 800px;
+      margin-top: auto;
+      margin-bottom: 20px;
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 30px;
+      outline: none;
+      padding-left: 20px;
+    }
+
+    button {
+      margin-left: 10px;
+      padding: 12px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      color: white;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      opacity: 0.9;
+      transform: scale(1.03);
+    }
+
+    @media (max-width: 600px) {
+      .chat-container {
+        height: 50vh;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+  <div style="display: flex; align-items: center; justify-content: center; gap: 18px;">
+    <img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" 
+         alt="logo" 
+         style="height: 65px; width: 65px;" />
+    <div class="gradient-text">Omnibot AI</div>
+  </div>
+</header>
+
+
+
+
+
+  <div class="chat-container" id="chat-container">
+    <!-- Chat messages will appear here -->
+  </div>
+
+  <div class="input-container">
+    <input type="text" id="user-input" placeholder="Ask me anything..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    function addMessage(message, isUser) {
+      const chatContainer = document.getElementById("chat-container");
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `message ${isUser ? "user-message" : "bot-message"}`;
+      messageDiv.textContent = message;
+      chatContainer.appendChild(messageDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const inputElement = document.getElementById("user-input");
+      const message = inputElement.value.trim();
+
+      if (message === "") return;
+
+      addMessage(message, true);
+      inputElement.value = "";
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ message: message })
+        });
+
+        const data = await response.json();
+        addMessage(data.response || "Sorry, something went wrong.", false);
+      } catch (error) {
+        addMessage("❌ Error: Could not connect to the server", false);
+      }
+    }
+
+    document.getElementById("user-input").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+
+</html>
